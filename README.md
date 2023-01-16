@@ -15,7 +15,7 @@ UFW app profile written in pure rust.
         .append_ports("84", "udp")
         .append_ports("83", "")
         .append_ports("8000", "tcp")
-        .init("Foo", "Alo", "Alo").unwrap();
+        .init("AppName", "Title", "Description").unwrap();
     println!("{}",x.try_adding_to_ufw(true).unwrap());
 // alternatively you can call x.try_write() which just writes the file 
 // at /etc/ufw/applications.d and not enable/disable the profile.
