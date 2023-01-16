@@ -1,7 +1,6 @@
 #[forbid(missing_docs)]
-
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs::{File};
 use std::io::{Error, ErrorKind, Write};
 use std::path::Path;
 use std::process::Command;
@@ -11,7 +10,7 @@ use std::process::Command;
 /// Example:
 /// ```
 /// fn main() {
-///     let mut x = rustufwprofile::config::UFWConf::default();
+///     let mut x = ufwprofile::config::UFWConf::default();
 ///     x.append_ports("80", "")
 ///         .append_ports("81:82", "tcp")
 ///         .append_ports("84", "udp")
@@ -21,24 +20,24 @@ use std::process::Command;
 ///    println!("{}",x.try_adding_to_ufw(true).unwrap());
 /// }
 /// ```
-pub struct UFWConf{
+pub struct UFWConf {
     app_name: String,
     config: String,
-    ports_map: HashMap<String, String>
+    ports_map: HashMap<String, String>,
 }
 
-impl Default for UFWConf{
+impl Default for UFWConf {
     /// Default function to initiate UFWConf struct.
     fn default() -> Self {
-        UFWConf{
+        UFWConf {
             app_name: "".to_string(),
             config: "".to_string(),
-            ports_map: Default::default()
+            ports_map: Default::default(),
         }
     }
 }
 
-impl UFWConf{
+impl UFWConf {
     /// To add ports to the config, pass `port` and `protocol` to be added
     ///
     /// You can pass empty string to allow all protocols
@@ -47,26 +46,62 @@ impl UFWConf{
         self
     }
 
+    /// check required permissions and if ufw is installed
+    pub fn check_permissions() -> bool {
+        match Command::new("ufw").arg("version").spawn() {
+            Ok(_) => {
+                !std::fs::metadata("/etc/ufw/applications.d/").unwrap().permissions().readonly()
+            }
+            Err(_) => {
+                false
+            }
+        }
+    }
+
     /// Pass `app_name`, `title` and `description` of the app.
     pub fn init(&mut self, app_name: &str, title: &str, description: &str) -> Result<&mut UFWConf, Error> {
         // let mut uc = UFWConf::default();
-       /* self.app_name = app_name.clone();
-        self.title = title;
-        self.description = description;
-        self.ports = format_ports(port);*/
+        /* self.app_name = app_name.clone();
+         self.title = title;
+         self.description = description;
+         self.ports = format_ports(port);*/
 
         self.app_name = app_name.to_string().replace(" ", "");
         let x = format_ports(self.ports_map.clone())?;
-        let x = format!("[{}]\ntitle={}\ndescription={}\nports={}\n", self.app_name.clone(), title, description,x);
+        let x = format!("[{}]\ntitle={}\ndescription={}\nports={}\n", self.app_name.clone(), title, description, x);
         // println!("{}", x.clone());
         self.config = x;
         Ok(self)
     }
 
-    /// pass `true` if you want to ALLOW the ports and `false` to DENY the ports.
-    pub fn try_adding_to_ufw(&self, allow: bool) -> Result<String, bool>{
+
+    /// returns config string.
+    pub fn get_config_string(&self) -> String {
+        self.config.clone()
+    }
+
+    /// tries writing it to `/etc/ufw/applications.d/`
+    pub fn try_write(&self) -> Result<(), Error> {
         let path = format!("/etc/ufw/applications.d/{}", self.app_name);
-        if Path::new(path.as_str()).exists()  {
+        if Path::new(path.as_str()).exists() {
+            std::fs::remove_file(path.as_str()).unwrap();
+        }
+
+        match File::create(path) {
+            Ok(mut f) => {
+                match f.write_all(self.config.as_bytes()) {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(e)
+                }
+            }
+            Err(e) => Err(e)
+        }
+    }
+
+    /// pass `true` if you want to ALLOW the ports and `false` to DENY the ports.
+    pub fn try_adding_to_ufw(&self, allow: bool) -> Result<String, Error> {
+        let path = format!("/etc/ufw/applications.d/{}", self.app_name);
+        if Path::new(path.as_str()).exists() {
             std::fs::remove_file(path.as_str()).unwrap();
         }
         match File::create(path) {
@@ -78,40 +113,39 @@ impl UFWConf{
                             true => {
                                 match x.arg("allow").arg(self.app_name.clone()).output() {
                                     Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                    Err(_) => Err(false)
+                                    Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running curl allow {}: {}", self.app_name, e)))
                                 }
                             }
                             false => {
                                 match x.arg("deny").arg(self.app_name.clone()).output() {
                                     Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                    Err(_) => Err(false)
+                                    Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running curl deny {}: {}", self.app_name, e)))
                                 }
                             }
                         }
-                    },
-                    Err(_) => Err(false)
+                    }
+                    Err(e) => Err(Error::new(ErrorKind::Other, format!("Error writing file {}", e)))
                 }
-            },
-            Err(_) => Err(false)
+            }
+            Err(e) => Err(Error::new(ErrorKind::Other, format!("Error creating file {}", e)))
         }
         // md.permissions().set_readonly(true);
         // Ok(())
     }
-
 }
 
-fn format_ports(port: HashMap<String, String>) -> Result<String, Error>{
+fn format_ports(port: HashMap<String, String>) -> Result<String, Error> {
     let x = check_ports(port.clone());
     if x != "1" {
         return Err(Error::new(ErrorKind::Other, x));
     }
     let mut x = String::new();
     let mut y = String::new();
-    for (k,v) in port.iter() {
-        if !v.is_empty() && !y.is_empty(){
-            y = y + "|" + k + "/" +v;
+    for (k, v) in port.iter() {
+        if !v.is_empty() && !y.is_empty() {
+            y = y + "|" + k + "/" + v;
             continue;
-        }else if y.is_empty() && !v.is_empty() {
+        } else if y.is_empty() && !v.is_empty() {
             y = k.to_owned() + "/" + v;
             continue;
         }
@@ -120,13 +154,13 @@ fn format_ports(port: HashMap<String, String>) -> Result<String, Error>{
             x = k.to_owned();
             continue;
         }
-        x = x+ "," + k;
+        x = x + "," + k;
     }
-    Ok(format!("{},{}",x,y))
+    Ok(format!("{},{}", x, y))
 }
 
-fn check_ports(p: HashMap<String, String>) -> String{
-    for (k,v) in p.iter() {
+fn check_ports(p: HashMap<String, String>) -> String {
+    for (k, v) in p.iter() {
         if v != "tcp" && v != "udp" && !v.is_empty() {
             return format!("Bad port at {}", v);
         }

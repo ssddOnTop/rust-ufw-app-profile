@@ -1,4 +1,4 @@
-use rustufwprofile::config::UFWConf;
+use ufwprofile::config::UFWConf;
 
 #[cfg(test)]
 mod tests{
@@ -43,12 +43,13 @@ mod tests{
 }
 
 fn main() {
-    let mut x = ufwprofile::config::UFWConf::default();
+    println!("{}",UFWConf::check_permissions());
+    /*let mut x = ufwprofile::config::UFWConf::default();
     x.append_ports("80", "")
         .append_ports("81:82", "tcp")
         .append_ports("84", "udp")
         .append_ports("83", "")
         .append_ports("8000", "tcp")
         .init("Foo", "Alo", "Alo").unwrap();
-    println!("{}",x.try_adding_to_ufw(true).unwrap());
+    println!("{}",x.try_adding_to_ufw(true).unwrap());*/
 }
