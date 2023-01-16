@@ -1,4 +1,7 @@
 #[forbid(missing_docs)]
+#[forbid(unused_imports)]
+#[forbid(unsafe_code)]
+
 use std::collections::HashMap;
 use std::fs::{File};
 use std::io::{Error, ErrorKind, Write};
