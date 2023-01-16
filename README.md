@@ -7,6 +7,8 @@ UFW app profile written in pure rust.
 
 # Example
 ```rust
+    if ufwprofile::config::UFWConf::check_permissions() {
+    //checks if ufw exists and the path /etc/ufw/applications.d is writable
     let mut x = ufwprofile::config::UFWConf::default();
     x.append_ports("80", "")
         .append_ports("81:82", "tcp")
@@ -15,6 +17,9 @@ UFW app profile written in pure rust.
         .append_ports("8000", "tcp")
         .init("Foo", "Alo", "Alo").unwrap();
     println!("{}",x.try_adding_to_ufw(true).unwrap());
+// alternatively you can call x.try_write() which just writes the file 
+// at /etc/ufw/applications.d and not enable/disable the profile.
+}
 ```
 # Drawbacks
 ### This is hardcoded dependency
