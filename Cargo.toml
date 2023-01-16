@@ -9,7 +9,7 @@ categories = [""]
 license = "MIT"
 repository = "https://github.com/ssddOnTop/rust-ufw-app-profile"
 homepage = "https://www.ssdd.dev/rustufwapp-profile"
-keywords = ["UFW profile"]
+keywords = ["UFW-profile"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
