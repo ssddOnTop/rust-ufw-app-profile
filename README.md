@@ -16,3 +16,7 @@ UFW app profile written in pure rust.
         .init("Foo", "Alo", "Alo").unwrap();
     println!("{}",x.try_adding_to_ufw(true).unwrap());
 ```
+# Drawbacks
+### This is hardcoded dependency
+1. The config file is hardcoded.
+2. The path is assumed to be `/etc/ufw/applications.d`

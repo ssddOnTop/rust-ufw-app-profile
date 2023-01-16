@@ -94,7 +94,6 @@ impl UFWConf{
             },
             Err(_) => Err(false)
         }
-
         // md.permissions().set_readonly(true);
         // Ok(())
     }
