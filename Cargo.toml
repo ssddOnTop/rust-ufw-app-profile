@@ -1,6 +1,6 @@
 [package]
 name = "ufwprofile"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 description = "UFW app profile written in pure rust"
 authors = ["Sandipsinh Rathod"]
@@ -9,7 +9,7 @@ categories = ["accessibility"]
 license = "MIT"
 repository = "https://github.com/ssddOnTop/rust-ufw-app-profile"
 homepage = "https://www.ssdd.dev/rustufwapp-profile"
-keywords = ["UFW-profile"]
+keywords = ["UFW-profile", "ufw"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
