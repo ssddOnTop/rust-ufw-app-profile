@@ -43,7 +43,8 @@ mod tests{
 }
 
 fn main() {
-    println!("{}",UFWConf::check_permissions());
+    println!("{}",UFWConf::is_root());
+    println!("{}",UFWConf::check_write_permission());
     /*let mut x = ufwprofile::config::UFWConf::default();
     x.append_ports("80", "")
         .append_ports("81:82", "tcp")

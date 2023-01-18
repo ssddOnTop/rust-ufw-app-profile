@@ -7,6 +7,8 @@ use std::fs::{File};
 use std::io::{Error, ErrorKind, Write};
 use std::path::Path;
 use std::process::Command;
+use crate::rootcheck;
+use crate::rootcheck::RunningAs;
 
 
 ///  Struct that contains app name, config string, ports HashMap
@@ -41,6 +43,11 @@ impl Default for UFWConf {
 }
 
 impl UFWConf {
+
+    pub fn is_root() -> bool {
+        rootcheck::escalate_if_needed()
+    }
+
     /// To add ports to the config, pass `port` and `protocol` to be added
     ///
     /// You can pass empty string to allow all protocols
@@ -50,7 +57,7 @@ impl UFWConf {
     }
 
     /// check required permissions and if ufw is installed
-    pub fn check_permissions() -> bool {
+    pub fn check_write_permission() -> bool {
         match Command::new("ufw").arg("version").spawn() {
             Ok(_) => {
                 !std::fs::metadata("/etc/ufw/applications.d/").unwrap().permissions().readonly()
