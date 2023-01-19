@@ -3,6 +3,5 @@
 #[macro_use]
 extern crate log;
 
-#[doc(no_inline)]
 pub mod config;
 mod rootcheck;
