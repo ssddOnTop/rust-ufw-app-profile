@@ -53,7 +53,8 @@ fn main() {
 
         if ufwprofile::config::UFWConf::is_root() {// check if the app has root permission.
             println!("{}",x.try_adding_to_ufw(true).unwrap());
+        }else {
+            println!("{}", x.try_adding_to_ufw_with_sudo(true).unwrap());
         }
-
     }
 }
