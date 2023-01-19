@@ -122,13 +122,25 @@ impl UFWConf {
                             true => {
                                 match x.arg("allow").arg(self.app_name.clone()).output() {
                                     Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                    Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running curl allow {}: {}", self.app_name, e)))
+                                    Err(_) => {
+                                        let mut x = Command::new("sudo");
+                                        match x.arg("ufw").arg("allow").arg(self.app_name.clone()).output() {
+                                            Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
+                                            Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running ufw deny {}: {}", self.app_name, e)))
+                                        }
+                                    }
                                 }
                             }
                             false => {
                                 match x.arg("deny").arg(self.app_name.clone()).output() {
                                     Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                    Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running curl deny {}: {}", self.app_name, e)))
+                                    Err(_) => {
+                                        let mut x = Command::new("sudo");
+                                        match x.arg("ufw").arg("deny").arg(self.app_name.clone()).output() {
+                                            Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
+                                            Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running ufw deny {}: {}", self.app_name, e)))
+                                        }
+                                    }
                                 }
                             }
                         }

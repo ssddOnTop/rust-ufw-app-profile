@@ -1,5 +1,3 @@
-use ufwprofile::config::UFWConf;
-
 #[cfg(test)]
 mod tests{
     use std::fs::File;
@@ -43,14 +41,19 @@ mod tests{
 }
 
 fn main() {
-    println!("{}",UFWConf::is_root());
-    println!("{}",UFWConf::check_write_permission());
-    /*let mut x = ufwprofile::config::UFWConf::default();
-    x.append_ports("80", "")
-        .append_ports("81:82", "tcp")
-        .append_ports("84", "udp")
-        .append_ports("83", "")
-        .append_ports("8000", "tcp")
-        .init("Foo", "Alo", "Alo").unwrap();
-    println!("{}",x.try_adding_to_ufw(true).unwrap());*/
+    if ufwprofile::config::UFWConf::check_write_permission() {
+        //checks if ufw exists and the path /etc/ufw/applications.d is writable
+        let mut x = ufwprofile::config::UFWConf::default();
+        x.append_ports("80", "")
+            .append_ports("81:82", "tcp")
+            .append_ports("84", "udp")
+            .append_ports("83", "")
+            .append_ports("8000", "tcp")
+            .init("AppName", "Title", "Description").unwrap();
+
+        if ufwprofile::config::UFWConf::is_root() {// check if the app has root permission.
+            println!("{}",x.try_adding_to_ufw(true).unwrap());
+        }
+
+    }
 }
