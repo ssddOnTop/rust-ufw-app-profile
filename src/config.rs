@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 use std::fs::{File};
-use std::io::{ErrorKind, Write};
+use std::io::{Error, ErrorKind, Write};
 use std::path::Path;
 use std::process::Command;
 use crate::rootcheck;

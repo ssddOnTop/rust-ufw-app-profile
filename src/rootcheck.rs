@@ -10,7 +10,6 @@
 //!     * It should work on *BSD. However, it is not tested.
 #![allow(clippy::bool_comparison)]
 
-use std::error::Error;
 use std::process::Command;
 use libc::setuid;
 use log::trace;
