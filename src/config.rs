@@ -1,8 +1,8 @@
 #[forbid(missing_docs)]
 #[forbid(unused_imports)]
 #[forbid(unsafe_code)]
-
 use std::collections::HashMap;
+use std::fmt::Error;
 use std::fs::{File};
 use std::io::{Error, ErrorKind, Write};
 use std::path::Path;
@@ -42,7 +42,6 @@ impl Default for UFWConf {
 }
 
 impl UFWConf {
-
     pub fn is_root() -> bool {
         rootcheck::escalate_if_needed()
     }
@@ -108,7 +107,7 @@ impl UFWConf {
     }
 
     /// pass `true` if you want to ALLOW the ports and `false` to DENY the ports.
-    pub fn try_adding_to_ufw(&self, allow: bool) -> Result<String, Error> {
+    pub fn try_adding_to_ufw_with_sudo(&self, allow: bool) -> Result<String, Error> {
         let path = format!("/etc/ufw/applications.d/{}", self.app_name);
         if Path::new(path.as_str()).exists() {
             std::fs::remove_file(path.as_str()).unwrap();
@@ -117,30 +116,18 @@ impl UFWConf {
             Ok(mut f) => {
                 match f.write_all(self.config.as_bytes()) {
                     Ok(_) => {
-                        let mut x = Command::new("ufw");
+                        let mut x = Command::new("sudo");
                         match allow {
                             true => {
-                                match x.arg("allow").arg(self.app_name.clone()).output() {
+                                match x.arg("ufw").arg("allow").arg(self.app_name.clone()).output() {
                                     Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                    Err(_) => {
-                                        let mut x = Command::new("sudo");
-                                        match x.arg("ufw").arg("allow").arg(self.app_name.clone()).output() {
-                                            Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                            Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running ufw deny {}: {}", self.app_name, e)))
-                                        }
-                                    }
+                                    Err(e) => Err(e)
                                 }
                             }
                             false => {
-                                match x.arg("deny").arg(self.app_name.clone()).output() {
+                                match x.arg("ufw").arg("deny").arg(self.app_name.clone()).output() {
                                     Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                    Err(_) => {
-                                        let mut x = Command::new("sudo");
-                                        match x.arg("ufw").arg("deny").arg(self.app_name.clone()).output() {
-                                            Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
-                                            Err(e) => Err(Error::new(ErrorKind::Other, format!("Error running ufw deny {}: {}", self.app_name, e)))
-                                        }
-                                    }
+                                    Err(e) => Err(e)
                                 }
                             }
                         }
@@ -153,6 +140,42 @@ impl UFWConf {
         // md.permissions().set_readonly(true);
         // Ok(())
     }
+}
+
+/// pass `true` if you want to ALLOW the ports and `false` to DENY the ports.
+pub fn try_adding_to_ufw(&self, allow: bool) -> Result<String, Error> {
+    let path = format!("/etc/ufw/applications.d/{}", self.app_name);
+    if Path::new(path.as_str()).exists() {
+        std::fs::remove_file(path.as_str()).unwrap();
+    }
+    match File::create(path) {
+        Ok(mut f) => {
+            match f.write_all(self.config.as_bytes()) {
+                Ok(_) => {
+                    let mut x = Command::new("ufw");
+                    match allow {
+                        true => {
+                            match x.arg("allow").arg(self.app_name.clone()).output() {
+                                Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
+                                Err(e) => Err(e)
+                            }
+                        }
+                        false => {
+                            match x.arg("deny").arg(self.app_name.clone()).output() {
+                                Ok(d) => Ok(String::from_utf8(d.stdout).unwrap()),
+                                Err(e) => Err(e)
+                            }
+                        }
+                    }
+                }
+                Err(e) => Err(Error::new(ErrorKind::Other, format!("Error writing file {}", e)))
+            }
+        }
+        Err(e) => Err(Error::new(ErrorKind::Other, format!("Error creating file {}", e)))
+    }
+    // md.permissions().set_readonly(true);
+    // Ok(())
+}
 }
 
 fn format_ports(port: HashMap<String, String>) -> Result<String, Error> {
