@@ -87,7 +87,7 @@ pub fn with_env(prefixes: &[&str]) -> bool {
     match current {
         Root => {
             trace!("already running as Root");
-            true
+            return true;
             // return Ok(current);
         }
         Suid => {
@@ -95,7 +95,7 @@ pub fn with_env(prefixes: &[&str]) -> bool {
             unsafe {
                 setuid(0);
             }
-            true
+            return true;
             // return Ok(current);
         }
         User => {

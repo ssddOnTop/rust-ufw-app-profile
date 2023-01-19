@@ -5,6 +5,15 @@
 # About Project
 UFW app profile written in pure rust.
 
+## Implementation:
+```toml
+ufwprofile = "" #check latest version above
+```
+Or
+```
+cargo add ufwprofile
+```
+
 # Example
 ```rust
     if ufwprofile::config::UFWConf::check_permissions() {
