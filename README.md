@@ -28,6 +28,8 @@ cargo add ufwprofile
 
         if ufwprofile::config::UFWConf::is_root() {// check if the app has root permission.
             println!("{}",x.try_adding_to_ufw(true).unwrap());
+        }else{
+            println!("{}", x.try_adding_to_ufw_with_sudo(true).unwrap());
         }
     }
 // alternatively you can call x.try_write() which just writes the file 
