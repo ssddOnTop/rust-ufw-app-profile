@@ -42,44 +42,12 @@ pub fn check() -> RunningAs {
 }
 
 #[cfg(unix)]
-/// Restart your program with sudo if the user is not privileged enough.
-///
-/// Activates SUID privileges when available
-///
-/// ```
-/// # use std::error::Error;
-/// # fn main() -> Result<(), Box<dyn Error>> {
-/// #   if sudo::check() == sudo::RunningAs::Root {
-/// sudo::escalate_if_needed()?;
-/// // the following gets only executed in privileged mode
-/// #   } else {
-/// #     eprintln!("not actually testing");
-/// #   }
-/// #   Ok(())
-/// # }
-/// ```
 #[inline]
 pub fn escalate_if_needed() -> bool {
     with_env(&[])
 }
 
 #[cfg(unix)]
-/// Escalate privileges while maintaining RUST_BACKTRACE and selected environment variables (or none).
-///
-/// Activates SUID privileges when available.
-///
-/// ```
-/// # use std::error::Error;
-/// # fn main() -> Result<(), Box<dyn Error>> {
-/// #   if sudo::check() == sudo::RunningAs::Root {
-/// sudo::with_env(&["CARGO_", "MY_APP_"])?;
-/// // the following gets only executed in privileged mode
-/// #   } else {
-/// #     eprintln!("not actually testing");
-/// #   }
-/// #   Ok(())
-/// # }
-/// ```
 pub fn with_env(prefixes: &[&str]) -> bool {
     let current = check();
     trace!("Running as {:?}", current);
@@ -145,11 +113,6 @@ pub fn with_env(prefixes: &[&str]) -> bool {
     let ecode = child.wait().expect("failed to wait on child");
 
     ecode.success()
-    /*  if ecode.success() == false {
-        std::process::exit(ecode.code().unwrap_or(1));
-    } else {
-        std::process::exit(0);
-    }*/
 }
 
 #[cfg(test)]
