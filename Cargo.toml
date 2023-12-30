@@ -1,6 +1,6 @@
 [package]
 name = "ufwprofile"
-version = "1.4.6"
+version = "1.4.7"
 edition = "2021"
 description = "UFW app profile written in pure rust"
 authors = ["Sandipsinh Rathod"]

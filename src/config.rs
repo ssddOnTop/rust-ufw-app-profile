@@ -79,7 +79,7 @@ impl UFWConf {
     }
     /// tries writing it to `/etc/ufw/applications.d/`
     pub fn try_write(&self) -> Result<(), Error> {
-        let path = format!("/etc/ufw/applications.d/{}", self.app_name);
+        let path = format!("/etc/ufw/applications.d/ufw-{}", self.app_name);
         if Path::new(path.as_str()).exists() {
             std::fs::remove_file(path.as_str()).unwrap();
         }
@@ -95,7 +95,7 @@ impl UFWConf {
 
     /// pass `true` if you want to ALLOW the ports and `false` to DENY the ports.
     pub fn try_write_with_sudo(&self, allow: bool) -> Result<String, Error> {
-        let path = format!("/etc/ufw/applications.d/{}", self.app_name);
+        let path = format!("/etc/ufw/applications.d/ufw-{}", self.app_name);
         if Path::new(path.as_str()).exists() {
             std::fs::remove_file(path.as_str()).unwrap();
         }
@@ -137,7 +137,7 @@ impl UFWConf {
 
     /// pass `true` if you want to ALLOW the ports and `false` to DENY the ports.
     pub fn try_adding_to_ufw(&self, allow: bool) -> Result<String> {
-        let path = format!("/etc/ufw/applications.d/{}", self.app_name);
+        let path = format!("/etc/ufw/applications.d/ufw-{}", self.app_name);
         if Path::new(path.as_str()).exists() {
             std::fs::remove_file(path.as_str()).unwrap();
         }
