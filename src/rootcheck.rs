@@ -10,9 +10,9 @@
 //!     * It should work on *BSD. However, it is not tested.
 #![allow(clippy::bool_comparison)]
 
-use std::process::Command;
 use libc::setuid;
 use log::trace;
+use std::process::Command;
 
 /// Cross platform representation of the state the current program running
 #[derive(Debug, PartialEq)]
@@ -145,7 +145,7 @@ pub fn with_env(prefixes: &[&str]) -> bool {
     let ecode = child.wait().expect("failed to wait on child");
 
     ecode.success()
-  /*  if ecode.success() == false {
+    /*  if ecode.success() == false {
         std::process::exit(ecode.code().unwrap_or(1));
     } else {
         std::process::exit(0);
@@ -158,7 +158,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let c = check();
-        assert!(true, "{:?}", c);
+        let _ = check();
     }
 }
